@@ -38,13 +38,13 @@ class EThreeWrapper: MethodChannel.MethodCallHandler {
         val semaphore = Semaphore(0)
 
         val callback = object: MethodChannel.Result{
-          override fun success(param: Any?) {
-            token = param as String?
+          override fun success(result: Any?) {
+            token = result as String?
             semaphore.release()
           }
 
-          override fun error(code: String?, message: String?, details: Any?) {
-            error = Error(message)
+          override fun error(errorCode: String, errorMessage: String?, errorDetails: Any?) {
+            error = Error(errorMessage)
             semaphore.release()
           }
 

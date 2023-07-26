@@ -31,11 +31,11 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+  const MyHomePage({super.key, required this.title});
   final String title;
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
@@ -65,19 +65,20 @@ class _MyHomePageState extends State<MyHomePage> {
 
     try {
       result = "Key is taken from local storage";
-      var hasKeyLocally = await ethree.hasLocalPrivateKey();
-      if (!hasKeyLocally) {
+      var hasKeyLocally = await ethree?.hasLocalPrivateKey();
+      if (hasKeyLocally != null && !hasKeyLocally) {
         print("Trying to restore private key");
-        await ethree.restorePrivateKey(password);
+        await ethree?.restorePrivateKey(password);
         result = "Key is restored from cloud";
       }
     } on PlatformException catch (e) {
-      print("Failed to get identity: '${e.message}' '${e.code}' '${e.details}'.");
+      print(
+          "Failed to get identity: '${e.message}' '${e.code}' '${e.details}'.");
       print("Register user: $initIdentity");
-      await ethree.register();
+      await ethree?.register();
 
       print("Backup private key");
-      await ethree.backupPrivateKey(password);
+      await ethree?.backupPrivateKey(password);
       result = "User was registered and private key backuped";
     }
     setResult(result);
@@ -92,7 +93,7 @@ class _MyHomePageState extends State<MyHomePage> {
         host = Uri.parse('http://10.0.2.2:8080/jwt');
       }
       var response =
-        await http.post(host, body: '{"identity": "${initIdentity}"}');
+          await http.post(host, body: '{"identity": "${initIdentity}"}');
       final resp = jsonDecode(response.body);
 
       return resp["jwt"];
@@ -101,30 +102,31 @@ class _MyHomePageState extends State<MyHomePage> {
     String result;
     try {
       final ethree = await Ethree.init(initIdentity, tokenCallback);
-      await ethree.register();
-      await ethree.hasLocalPrivateKey();
-      await ethree.backupPrivateKey("1111");
-      await ethree.changePassword("1111", "11111");
-      await ethree.cleanup();
-      await ethree.restorePrivateKey("11111");
-      await ethree.resetPrivateKeyBackup();
-      await ethree.cleanup();
-      await ethree.rotatePrivateKey();
-      await ethree.backupPrivateKey("1111");
+      await ethree?.register();
+      await ethree?.hasLocalPrivateKey();
+      await ethree?.backupPrivateKey("1111");
+      await ethree?.changePassword("1111", "11111");
+      await ethree?.cleanup();
+      await ethree?.restorePrivateKey("11111");
+      await ethree?.resetPrivateKeyBackup();
+      await ethree?.cleanup();
+      await ethree?.rotatePrivateKey();
+      await ethree?.backupPrivateKey("1111");
 
       //These users should exist in the cloud, so you can register them manually
       //if you need whole example to work
       final users = await ethree
-          .findUsers(["identity1", "identity2", initIdentity], true);
-      final data = await ethree.authEncrypt(users, "data");
-      final decryptedData = await ethree.authDecrypt(data, users[initIdentity]);
-      result = "My identity: $initIdentity, Data: $decryptedData";
+          ?.findUsers(["identity1", "identity2", initIdentity], true);
+      if (users != null) var data = await ethree?.authEncrypt(users, "data");
+
+      // final decryptedData = await ethree?.authDecrypt(data, users[initIdentity]);
+      //result = "My identity: $initIdentity, Data: $decryptedData";
     } on PlatformException catch (e) {
       result =
-        "Failed to get identity level: '${e.message}' '${e.code}' '${e.details}'.";
+          "Failed to get identity level: '${e.message}' '${e.code}' '${e.details}'.";
     }
 
-    setResult(result);
+    //setResult(result);
   }
 
   setResult(final String state) {
